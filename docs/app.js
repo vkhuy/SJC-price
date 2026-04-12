@@ -43,7 +43,7 @@ async function loadData() {
     }
   }
 
-  throw new Error("Khong tim thay du lieu CSV")
+  throw new Error("CSV data not found")
 }
 
 function convertPrice(value, unit) {
@@ -57,22 +57,22 @@ function formatValue(value, unit, compact = false) {
   if (!Number.isFinite(value)) return "-"
 
   if (unit === "gram") {
-    return new Intl.NumberFormat("vi-VN", {
+    return new Intl.NumberFormat("en-US", {
       notation: compact ? "compact" : "standard",
       maximumFractionDigits: compact ? 1 : 0,
     }).format(value) + " VND"
   }
 
-  return new Intl.NumberFormat("vi-VN", {
+  return new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(value) + " trieu"
+  }).format(value) + " mil VND"
 }
 
 function formatDate(date, short = false) {
   if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "-"
 
-  return new Intl.DateTimeFormat("vi-VN", {
+  return new Intl.DateTimeFormat("en-GB", {
     day: short ? "2-digit" : "numeric",
     month: short ? "2-digit" : "long",
     year: "numeric",
@@ -142,7 +142,7 @@ function updateStats(data) {
 function updateRangeText(data) {
   const first = data[0]
   const last = data[data.length - 1]
-  const msg = `${formatDate(first.date, true)} - ${formatDate(last.date, true)} (${data.length} diem du lieu)`
+  const msg = `${formatDate(first.date, true)} - ${formatDate(last.date, true)} (${data.length} data points)`
   document.getElementById("chartRangeLabel").textContent = msg
 }
 
@@ -162,14 +162,14 @@ function buildDataset(data) {
 function tickLabel(ms) {
   const date = new Date(Number(ms))
   if (state.range === "1m" || state.range === "3m" || state.range === "6m") {
-    return new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit" }).format(date)
+    return new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "2-digit" }).format(date)
   }
 
   if (state.range === "1y" || state.range === "3y") {
-    return new Intl.DateTimeFormat("vi-VN", { month: "2-digit", year: "2-digit" }).format(date)
+    return new Intl.DateTimeFormat("en-GB", { month: "2-digit", year: "2-digit" }).format(date)
   }
 
-  return new Intl.DateTimeFormat("vi-VN", { year: "numeric" }).format(date)
+  return new Intl.DateTimeFormat("en-GB", { year: "numeric" }).format(date)
 }
 
 function renderChart() {
@@ -187,7 +187,7 @@ function renderChart() {
       data: {
         datasets: [
           {
-            label: "Gia mua",
+            label: "Buy price",
             data: data.buy,
             parsing: false,
             borderColor: "#2f7f6f",
@@ -198,7 +198,7 @@ function renderChart() {
             tension: 0.2,
           },
           {
-            label: "Gia ban",
+            label: "Sell price",
             data: data.sell,
             parsing: false,
             borderColor: "#b7543b",
@@ -324,7 +324,7 @@ async function main() {
     console.info(`Loaded ${rawData.length} rows from ${sourcePath}`)
   } catch (error) {
     console.error(error)
-    document.getElementById("chartRangeLabel").textContent = "Khong tai duoc du lieu CSV"
+    document.getElementById("chartRangeLabel").textContent = "Unable to load CSV data"
   }
 }
 

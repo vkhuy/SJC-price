@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="vi">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gia vang SJC Viet Nam</title>
+    <title>Vietnam SJC Gold Price</title>
     <meta
       name="description"
-      content="Lich su gia vang SJC Viet Nam duoc cap nhat tu dong moi ngay va hien thi tren bieu do tuong tac."
+      content="Daily-updated Vietnam SJC gold price history with an interactive chart."
     />
     <meta name="theme-color" content="#b88b2f" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -24,13 +24,13 @@
     <main class="page">
       <section class="hero panel reveal">
         <p class="eyebrow">Viet Nam Gold Tracker</p>
-        <h1>Lich su gia vang SJC</h1>
+        <h1>SJC Gold Price History</h1>
         <p class="subtitle">
-          Bieu do gia mua va gia ban theo ngay. Du lieu lay tu sjc_final.csv va duoc dong bo de trien khai GitHub Pages.
+          Daily buy and sell price chart. Data comes from sjc_final.csv and is synced for GitHub Pages deployment.
         </p>
 
         <div class="control-row">
-          <div class="button-group" id="rangeButtons" aria-label="Bo loc thoi gian">
+          <div class="button-group" id="rangeButtons" aria-label="Time range filter">
             <button data-range="1m">1M</button>
             <button data-range="3m">3M</button>
             <button data-range="6m">6M</button>
@@ -40,8 +40,8 @@
             <button data-range="all" class="active">ALL</button>
           </div>
 
-          <div class="button-group" id="unitButtons" aria-label="Don vi hien thi">
-            <button data-unit="luong" class="active">Trieu/luong</button>
+          <div class="button-group" id="unitButtons" aria-label="Display unit">
+            <button data-unit="luong" class="active">Million VND/tael</button>
             <button data-unit="gram">VND/gram</button>
           </div>
         </div>
@@ -50,28 +50,28 @@
       <section class="panel chart-panel reveal">
         <div class="chart-head">
           <h2>SJC 1L Buy/Sell</h2>
-          <p id="chartRangeLabel">Dang tai du lieu...</p>
+          <p id="chartRangeLabel">Loading data...</p>
         </div>
         <div class="chart-wrap">
-          <canvas id="sjcChart" aria-label="Bieu do gia vang SJC" role="img"></canvas>
+          <canvas id="sjcChart" aria-label="SJC gold price chart" role="img"></canvas>
         </div>
       </section>
 
       <section class="stats reveal" id="statsGrid">
         <article class="stat-card">
-          <p>Gia mua moi nhat</p>
+          <p>Latest buy price</p>
           <h3 id="latestBuy">-</h3>
         </article>
         <article class="stat-card">
-          <p>Gia ban moi nhat</p>
+          <p>Latest sell price</p>
           <h3 id="latestSell">-</h3>
         </article>
         <article class="stat-card">
-          <p>Do chenh mua/ban</p>
+          <p>Buy/sell spread</p>
           <h3 id="latestSpread">-</h3>
         </article>
         <article class="stat-card">
-          <p>Bien dong 30 ngay (gia ban)</p>
+          <p>30-day change (sell)</p>
           <h3 id="change30d">-</h3>
         </article>
       </section>
@@ -79,12 +79,12 @@
       <section class="panel note reveal">
         <p id="lastUpdated">Last updated: -</p>
         <p>
-          Nguon du lieu trang web: <a href="./data/sjc_final.csv">docs/data/sjc_final.csv</a>.
-          Nguon goc trong repo:
+          Site data source: <a href="./data/sjc_final.csv">docs/data/sjc_final.csv</a>.
+          Canonical source in repo:
           <a href="https://github.com/vkhuy/SJC-price/blob/main/data/gold_sjc/sjc_final.csv" target="_blank" rel="noopener noreferrer">data/gold_sjc/sjc_final.csv</a>.
         </p>
         <p>
-          Cam hung tu giao dien tracker vang cua
+          Inspired by the gold tracker design from
           <a href="https://gold-price.sakib.dev/" target="_blank" rel="noopener noreferrer">gold-price.sakib.dev</a>.
         </p>
       </section>
