@@ -3,12 +3,36 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vietnam SJC Gold Price</title>
+    <title>SJC Gold Price Vietnam Today | Live Buy Sell Chart</title>
     <meta
       name="description"
-      content="Daily-updated Vietnam SJC gold price history with an interactive chart."
+      content="Track SJC gold price today in Vietnam with daily updated buy and sell history, interactive charts, and downloadable CSV data."
     />
+    <meta name="keywords" content="SJC gold price, gold price Vietnam, SJC buy sell, gia vang SJC hom nay, gold chart Vietnam" />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <link rel="canonical" href="https://vkhuy.github.io/SJC-price/" />
     <meta name="theme-color" content="#b88b2f" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Vietnam SJC Gold Price" />
+    <meta property="og:title" content="SJC Gold Price Vietnam Today | Live Buy Sell Chart" />
+    <meta
+      property="og:description"
+      content="Daily SJC buy and sell price chart for Vietnam, with long-range historical data and CSV export."
+    />
+    <meta property="og:url" content="https://vkhuy.github.io/SJC-price/" />
+    <meta property="og:image" content="https://vkhuy.github.io/SJC-price/sjc.png" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="SJC Gold Price Vietnam Today" />
+    <meta
+      name="twitter:description"
+      content="Live SJC buy/sell price chart in Vietnam with daily updates."
+    />
+    <meta name="twitter:image" content="https://vkhuy.github.io/SJC-price/sjc.png" />
+    <link rel="icon" type="image/png" href="./sjc.png" />
+    <link rel="shortcut icon" href="./sjc.png" />
+    <link rel="apple-touch-icon" href="./sjc.png" />
+    <link rel="manifest" href="./site.webmanifest" />
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="./sitemap.xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -16,6 +40,45 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./styles.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "name": "Vietnam SJC Gold Price",
+            "url": "https://vkhuy.github.io/SJC-price/",
+            "inLanguage": "en"
+          },
+          {
+            "@type": "Dataset",
+            "name": "Vietnam SJC Gold Price History",
+            "description": "Daily updated SJC gold buy and sell prices in Vietnam with historical chart views.",
+            "url": "https://vkhuy.github.io/SJC-price/",
+            "keywords": [
+              "SJC gold price",
+              "gold price Vietnam",
+              "SJC buy sell",
+              "gia vang SJC hom nay"
+            ],
+            "isBasedOn": [
+              "https://github.com/thinh-vu/vnstock",
+              "https://sjc.com.vn/"
+            ],
+            "distribution": [
+              {
+                "@type": "DataDownload",
+                "contentUrl": "https://vkhuy.github.io/SJC-price/data/sjc_final.csv",
+                "encodingFormat": "text/csv"
+              }
+            ],
+            "sameAs": [
+              "https://github.com/vkhuy/SJC-price"
+            ]
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div class="bg-orb orb-a"></div>
@@ -26,8 +89,31 @@
         <p class="eyebrow">Viet Nam Gold Tracker</p>
         <h1>SJC Gold Price History</h1>
         <p class="subtitle">
-          Daily buy and sell price chart.
+          Track SJC gold price today in Vietnam with daily updated buy and sell history.
         </p>
+
+        <div class="repo-actions" aria-label="Repository actions">
+          <span class="repo-star">
+            <a
+              class="github-button"
+              href="https://github.com/vkhuy/SJC-price"
+              data-icon="octicon-star"
+              data-size="large"
+              data-show-count="true"
+              aria-label="Star vkhuy/SJC-price on GitHub"
+            >
+              Star
+            </a>
+          </span>
+          <a
+            class="repo-link"
+            href="https://github.com/vkhuy/SJC-price"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Open repository
+          </a>
+        </div>
 
         <div class="control-row">
           <div class="button-group" id="rangeButtons" aria-label="Time range filter">
@@ -83,10 +169,15 @@
           and <a href="https://sjc.com.vn/" target="_blank" rel="noopener noreferrer">https://sjc.com.vn/</a>.
           Displayed dataset file: <a href="./data/sjc_final.csv">docs/data/sjc_final.csv</a>.
         </p>
+        <ul class="note-list" aria-label="Pricing notes">
+          <li>There is a 0.1% VAT on all gold purchases in Vietnam.</li>
+          <li>If purchased in jewelry form, there are usually additional making charges.</li>
+        </ul>
       </section>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
     <script src="./app.js"></script>
   </body>
 </html>

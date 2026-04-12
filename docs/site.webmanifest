@@ -1,0 +1,15 @@
+{
+  "name": "Vietnam SJC Gold Price",
+  "short_name": "SJC Price",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f7f2e8",
+  "theme_color": "#b88b2f",
+  "icons": [
+    {
+      "src": "./sjc.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    }
+  ]
+}

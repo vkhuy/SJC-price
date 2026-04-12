@@ -106,6 +106,60 @@ h1 {
   color: var(--ink-soft);
 }
 
+.repo-actions {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.repo-star {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  order: 1;
+}
+
+.repo-actions .github-button {
+  display: inline-block;
+  line-height: 0;
+}
+
+.repo-actions iframe {
+  display: block;
+  border: 0;
+  transform: scaleY(1.09);
+  transform-origin: left center;
+}
+
+.repo-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  order: 2;
+  border: 1px solid rgba(115, 85, 30, 0.25);
+  background: rgba(255, 253, 248, 0.85);
+  color: var(--ink);
+  text-decoration: none;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.03em;
+  transition: transform 160ms ease, background-color 160ms ease, border-color 160ms ease;
+}
+
+.repo-link:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 248, 225, 0.92);
+  border-color: rgba(115, 85, 30, 0.45);
+}
+
 .control-row {
   margin-top: 20px;
   display: flex;
@@ -207,6 +261,34 @@ h1 {
 
 .note p + p {
   margin-top: 8px;
+}
+
+.note-list {
+  margin: 10px 0 0;
+  padding-left: 0;
+  list-style: none;
+  color: var(--ink-soft);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.note-list li {
+  position: relative;
+  padding-left: 18px;
+}
+
+.note-list li::before {
+  content: "*";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--gold-1);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.note-list li + li {
+  margin-top: 4px;
 }
 
 a {
