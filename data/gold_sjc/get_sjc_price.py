@@ -5,7 +5,7 @@ import time
 from vnstock.explorer.misc import sjc_gold_price
 
 def fetch_sjc_with_retry(max_retries=3, delay=5):
-    """Fetch SJC data with retry logic"""
+    """Fetch SJC data via vnstock with retry logic."""
     for attempt in range(max_retries):
         try:
             print(f"Attempt {attempt + 1}/{max_retries}...")
@@ -32,6 +32,7 @@ def fetch_and_save_sjc_price():
     try:
         # Fetch SJC gold price data with retry
         print("Fetching SJC price...")
+        print("Source: vnstock + https://sjc.com.vn/")
         gold_data = fetch_sjc_with_retry(max_retries=10, delay=10)
         
         if gold_data is None or len(gold_data) == 0:
