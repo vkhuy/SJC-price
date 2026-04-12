@@ -39,11 +39,17 @@ jobs:
         cd data/gold_sjc
         python get_sjc_price.py
 
+    - name: Sync GitHub Pages data
+      run: |
+        mkdir -p docs/data
+        cp data/gold_sjc/sjc_final.csv docs/data/sjc_final.csv
+
     - name: Commit and push changes
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add data/gold_sjc/sjc_final.csv
+        git add docs/data/sjc_final.csv
         
         if git diff --staged --quiet; then
           echo "No changes in SJC gold price."
