@@ -15,9 +15,6 @@ SELL_KEYS = {"sell", "sell_price", "giaban", "gia_ban", "ban"}
 BOT_USER_AGENT = "Mozilla/5.0 (compatible; SJC-price-bot/1.0)"
 BROWSER_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 MAX_SJC_PATTERN_GAP = 80
-# If both buy/sell quotes are below this value, treat them as low-unit ("chỉ") quotes
-# and convert to "lượng" by multiplying by 10.
-CHI_TO_LUONG_THRESHOLD_VND = 30_000_000
 
 def _to_numeric_price(value):
     if value is None:
@@ -287,9 +284,9 @@ def fetch_and_save_sjc_price():
             print("Failed to fetch SJC price from all sources")
             return False
 
-        # Guardrail for giavangonline fallback: convert "chỉ" quote to "lượng" when detected.
-        if source_used == "giavangonline" and buy_price < CHI_TO_LUONG_THRESHOLD_VND and sell_price < CHI_TO_LUONG_THRESHOLD_VND:
-            print("Detected low-unit fallback quote from giavangonline, converting from chỉ to lượng (x10).")
+        # giavangonline fallback values are normalized from chỉ to lượng.
+        if source_used == "giavangonline":
+            print("Converting giavangonline fallback quote from chỉ to lượng (x10).")
             buy_price *= 10
             sell_price *= 10
 
