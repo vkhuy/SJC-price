@@ -12,6 +12,9 @@ SJC_API = "https://sjc.com.vn/GoldPrice/Services/PriceService.ashx"
 NAME_KEYS = {"name", "title", "loai_vang", "loaivang", "gold_name", "ten", "tenloaivang"}
 BUY_KEYS = {"buy", "buy_price", "giamua", "gia_mua", "mua"}
 SELL_KEYS = {"sell", "sell_price", "giaban", "gia_ban", "ban"}
+BOT_USER_AGENT = "Mozilla/5.0 (compatible; SJC-price-bot/1.0)"
+BROWSER_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+MAX_SJC_PATTERN_GAP = 80
 
 def _to_numeric_price(value):
     if value is None:
@@ -22,6 +25,11 @@ def _to_numeric_price(value):
     if not cleaned:
         return None
     return float(cleaned)
+
+def recent_dates(max_days_back):
+    for day_offset in range(max_days_back):
+        target_date = datetime.now() - timedelta(days=day_offset)
+        yield target_date, target_date.strftime("%Y-%m-%d")
 
 def _extract_prices_from_json(payload):
     rows = []
@@ -58,14 +66,14 @@ def _extract_prices_from_json(payload):
 def fetch_sjc_from_sjc_api(max_retries=3, delay=5):
     """Fallback source: fetch directly from SJC API endpoint."""
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "User-Agent": BROWSER_USER_AGENT,
         "Referer": "https://sjc.com.vn/",
         "Accept": "application/json, text/javascript, */*; q=0.01",
         "X-Requested-With": "XMLHttpRequest",
     }
 
     for attempt in range(max_retries):
-        print(f"Trying SJC API attempt {attempt + 1}/{max_retries}: {SJC_API}")
+        print(f"Trying SJC API attempt {attempt + 1}/{max_retries}")
         for method in ("get", "post"):
             try:
                 request_fn = requests.get if method == "get" else requests.post
@@ -105,7 +113,7 @@ def fetch_sjc_from_sjc_api(max_retries=3, delay=5):
                         return buy_price, sell_price, datetime.now().strftime("%Y-%m-%d")
 
                 # Match text containing "SJC ... 1L" followed by two prices with thousand separators.
-                pattern = re.compile(r"(?is)sjc[^\n]{0,80}?1l.*?(\d{2,3}(?:[.,]\d{3})+).*?(\d{2,3}(?:[.,]\d{3})+)")
+                pattern = re.compile(rf"(?is)sjc[^\n]{{0,{MAX_SJC_PATTERN_GAP}}}?1l.*?(\d{{2,3}}(?:[.,]\d{{3}})+).*?(\d{{2,3}}(?:[.,]\d{{3}})+)")
                 match = pattern.search(text)
                 if match:
                     buy_price = _to_numeric_price(match.group(1))
@@ -147,12 +155,10 @@ def fetch_sjc_with_retry(max_retries=3, delay=5):
 def fetch_sjc_from_giavang_org(max_days_back=3):
     """Fallback source: fetch SJC from giavang.org historical pages."""
     headers = {
-        "User-Agent": "Mozilla/5.0 (compatible; SJC-price-bot/1.0)"
+        "User-Agent": BOT_USER_AGENT
     }
 
-    for day_offset in range(max_days_back):
-        target_date = datetime.now() - timedelta(days=day_offset)
-        date_str = target_date.strftime("%Y-%m-%d")
+    for _, date_str in recent_dates(max_days_back):
         url = f"https://giavang.org/trong-nuoc/sjc/lich-su/{date_str}.html"
 
         try:
@@ -190,12 +196,10 @@ def fetch_sjc_from_giavang_org(max_days_back=3):
 def fetch_sjc_from_giavangonline(max_days_back=3):
     """Fallback source: fetch SJC from giavangonline.com."""
     headers = {
-        "User-Agent": "Mozilla/5.0 (compatible; SJC-price-bot/1.0)"
+        "User-Agent": BOT_USER_AGENT
     }
 
-    for day_offset in range(max_days_back):
-        target_date = datetime.now() - timedelta(days=day_offset)
-        date_str = target_date.strftime("%Y-%m-%d")
+    for target_date, date_str in recent_dates(max_days_back):
         url = f"https://giavangonline.com/mobile/goldhistory.php?date={target_date.strftime('%Y/%m/%d')}"
 
         try:
