@@ -215,9 +215,8 @@ def fetch_sjc_from_giavangonline(max_days_back=3):
             for row in table.find_all("tr"):
                 cols = row.find_all("td")
                 if len(cols) >= 2 and "sjc 1l" in cols[0].get_text().strip().lower():
-                    # Some page versions may include multiple price pairs in the same row.
-                    # Prefer the highest sell-price pair because lượng quotes are typically
-                    # larger than chỉ quotes on the same date.
+                    # Some page versions may include multiple price-pair cells in one row.
+                    # Prefer the highest valid pair to avoid picking lower alternate cells.
                     best_pair = None
                     for col in cols[1:]:
                         price_text = col.get_text().strip()
@@ -284,7 +283,7 @@ def fetch_and_save_sjc_price():
             print("Failed to fetch SJC price from all sources")
             return False
 
-        # giavangonline fallback values are normalized from chỉ to lượng.
+        # giavangonline fallback values need to be normalized from chỉ to lượng.
         if source_used == "giavangonline":
             print("Converting giavangonline fallback quote from chỉ to lượng (x10).")
             buy_price *= 10
