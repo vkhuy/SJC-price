@@ -15,6 +15,9 @@ SELL_KEYS = {"sell", "sell_price", "giaban", "gia_ban", "ban"}
 BOT_USER_AGENT = "Mozilla/5.0 (compatible; SJC-price-bot/1.0)"
 BROWSER_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 MAX_SJC_PATTERN_GAP = 80
+# If both buy/sell quotes are below this value, treat them as low-unit ("chỉ") quotes
+# and convert to "lượng" by multiplying by 10.
+CHI_TO_LUONG_THRESHOLD_VND = 30_000_000
 
 def _to_numeric_price(value):
     if value is None:
@@ -216,7 +219,8 @@ def fetch_sjc_from_giavangonline(max_days_back=3):
                 cols = row.find_all("td")
                 if len(cols) >= 2 and "sjc 1l" in cols[0].get_text().strip().lower():
                     # Some page versions may include multiple price pairs in the same row.
-                    # Prefer the largest valid pair to avoid accidentally taking a lower-unit quote.
+                    # Prefer the highest sell-price pair because lượng quotes are typically
+                    # larger than chỉ quotes on the same date.
                     best_pair = None
                     for col in cols[1:]:
                         price_text = col.get_text().strip()
@@ -284,7 +288,7 @@ def fetch_and_save_sjc_price():
             return False
 
         # Guardrail for giavangonline fallback: convert "chỉ" quote to "lượng" when detected.
-        if source_used == "giavangonline" and buy_price < 30_000_000 and sell_price < 30_000_000:
+        if source_used == "giavangonline" and buy_price < CHI_TO_LUONG_THRESHOLD_VND and sell_price < CHI_TO_LUONG_THRESHOLD_VND:
             print("Detected low-unit fallback quote from giavangonline, converting from chỉ to lượng (x10).")
             buy_price *= 10
             sell_price *= 10
