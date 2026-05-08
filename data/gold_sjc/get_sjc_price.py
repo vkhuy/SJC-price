@@ -9,6 +9,9 @@ import time
 from vnstock.explorer.misc import sjc_gold_price
 
 SJC_API = "https://sjc.com.vn/GoldPrice/Services/PriceService.ashx"
+NAME_KEYS = {"name", "title", "loai_vang", "loaivang", "gold_name", "ten", "tenloaivang"}
+BUY_KEYS = {"buy", "buy_price", "giamua", "gia_mua", "mua"}
+SELL_KEYS = {"sell", "sell_price", "giaban", "gia_ban", "ban"}
 
 def _to_numeric_price(value):
     if value is None:
@@ -26,9 +29,9 @@ def _extract_prices_from_json(payload):
     def walk(node):
         if isinstance(node, dict):
             lower_keys = {str(k).lower(): k for k in node.keys()}
-            name_key = next((lower_keys[k] for k in lower_keys if k in {"name", "title", "loai_vang", "loaivang", "gold_name", "ten", "tenloaivang"}), None)
-            buy_key = next((lower_keys[k] for k in lower_keys if k in {"buy", "buy_price", "giamua", "gia_mua", "mua"}), None)
-            sell_key = next((lower_keys[k] for k in lower_keys if k in {"sell", "sell_price", "giaban", "gia_ban", "ban"}), None)
+            name_key = next((lower_keys[k] for k in lower_keys if k in NAME_KEYS), None)
+            buy_key = next((lower_keys[k] for k in lower_keys if k in BUY_KEYS), None)
+            sell_key = next((lower_keys[k] for k in lower_keys if k in SELL_KEYS), None)
 
             if buy_key is not None and sell_key is not None:
                 name = str(node.get(name_key, "")) if name_key is not None else ""
@@ -101,6 +104,7 @@ def fetch_sjc_from_sjc_api(max_retries=3, delay=5):
                         print(f"Fetched API prices: Buy={buy_price:,.0f} VND, Sell={sell_price:,.0f} VND")
                         return buy_price, sell_price, datetime.now().strftime("%Y-%m-%d")
 
+                # Match text containing "SJC ... 1L" followed by two prices with thousand separators.
                 pattern = re.compile(r"(?is)sjc[^\n]{0,80}?1l.*?(\d{2,3}(?:[.,]\d{3})+).*?(\d{2,3}(?:[.,]\d{3})+)")
                 match = pattern.search(text)
                 if match:
@@ -231,7 +235,7 @@ def fetch_and_save_sjc_price():
 
         # Fetch SJC gold price data with retry
         print("Fetching SJC price...")
-        print("Source: vnstock + SJC API + giavang.org + giavangonline.com")
+        print("Source (fallback order): vnstock -> SJC API -> giavang.org -> giavangonline.com")
         gold_data = fetch_sjc_with_retry(max_retries=10, delay=10)
         
         if gold_data is not None and len(gold_data) > 0:
