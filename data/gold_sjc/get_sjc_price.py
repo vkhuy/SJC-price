@@ -215,15 +215,24 @@ def fetch_sjc_from_giavangonline(max_days_back=3):
             for row in table.find_all("tr"):
                 cols = row.find_all("td")
                 if len(cols) >= 2 and "sjc 1l" in cols[0].get_text().strip().lower():
-                    price_text = cols[1].get_text().strip()
-                    if " / " not in price_text:
-                        continue
-                    buy_str, sell_str = price_text.split(" / ", 1)
-                    buy_price = pd.to_numeric(buy_str.replace(",", ""), errors="coerce")
-                    sell_price = pd.to_numeric(sell_str.replace(",", ""), errors="coerce")
-                    if pd.notna(buy_price) and pd.notna(sell_price):
-                        print(f"Fetched fallback prices: Buy={buy_price:,.0f} VND, Sell={sell_price:,.0f} VND")
-                        return float(buy_price), float(sell_price), date_str
+                    # Some page versions may include multiple price pairs in the same row.
+                    # Prefer the largest valid pair to avoid accidentally taking a lower-unit quote.
+                    best_pair = None
+                    for col in cols[1:]:
+                        price_text = col.get_text().strip()
+                        if " / " not in price_text:
+                            continue
+                        buy_str, sell_str = price_text.split(" / ", 1)
+                        buy_price = pd.to_numeric(buy_str.replace(",", ""), errors="coerce")
+                        sell_price = pd.to_numeric(sell_str.replace(",", ""), errors="coerce")
+                        if pd.notna(buy_price) and pd.notna(sell_price):
+                            candidate = (float(buy_price), float(sell_price))
+                            if best_pair is None or candidate[1] > best_pair[1]:
+                                best_pair = candidate
+
+                    if best_pair is not None:
+                        print(f"Fetched fallback prices: Buy={best_pair[0]:,.0f} VND, Sell={best_pair[1]:,.0f} VND")
+                        return best_pair[0], best_pair[1], date_str
         except Exception as e:
             print(f"Fallback fetch failed for {date_str}: {str(e)}")
 
@@ -236,6 +245,7 @@ def fetch_and_save_sjc_price():
         buy_price = None
         sell_price = None
         record_date = datetime.now().strftime("%Y-%m-%d")
+        source_used = None
 
         # Fetch SJC gold price data with retry
         print("Fetching SJC price...")
@@ -246,28 +256,38 @@ def fetch_and_save_sjc_price():
             sjc_row = gold_data.iloc[0]
             buy_price = sjc_row.get('buy_price')
             sell_price = sjc_row.get('sell_price')
+            source_used = "vnstock"
 
         if buy_price is None or sell_price is None:
             print("vnstock source unavailable, trying SJC API fallback...")
             buy_price, sell_price, fallback_date = fetch_sjc_from_sjc_api(max_retries=3, delay=5)
             if buy_price is not None and sell_price is not None and fallback_date is not None:
                 record_date = fallback_date
+                source_used = "sjc_api"
 
         if buy_price is None or sell_price is None:
             print("SJC API source unavailable, trying fallback source giavang.org...")
             buy_price, sell_price, fallback_date = fetch_sjc_from_giavang_org(max_days_back=3)
             if buy_price is not None and sell_price is not None and fallback_date is not None:
                 record_date = fallback_date
+                source_used = "giavang_org"
 
         if buy_price is None or sell_price is None:
             print("giavang.org source unavailable, trying fallback source giavangonline.com...")
             buy_price, sell_price, fallback_date = fetch_sjc_from_giavangonline(max_days_back=3)
             if buy_price is not None and sell_price is not None and fallback_date is not None:
                 record_date = fallback_date
+                source_used = "giavangonline"
 
         if buy_price is None or sell_price is None:
             print("Failed to fetch SJC price from all sources")
             return False
+
+        # Guardrail for giavangonline fallback: convert "chỉ" quote to "lượng" when detected.
+        if source_used == "giavangonline" and buy_price < 30_000_000 and sell_price < 30_000_000:
+            print("Detected low-unit fallback quote from giavangonline, converting from chỉ to lượng (x10).")
+            buy_price *= 10
+            sell_price *= 10
 
         print(f"Fetched prices: Buy={buy_price:,.0f} VND, Sell={sell_price:,.0f} VND")
 
