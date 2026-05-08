@@ -36,16 +36,18 @@ def fetch_and_save_sjc_price():
         gold_data = fetch_sjc_with_retry(max_retries=10, delay=10)
         
         if gold_data is None or len(gold_data) == 0:
-            print("Failed to fetch SJC data after multiple attempts")
-            return False
+            print("Warning: Failed to fetch SJC data after multiple attempts")
+            print("Skipping update and keeping existing dataset unchanged")
+            return True
         
         sjc_row = gold_data.iloc[0]
         buy_price = sjc_row.get('buy_price')
         sell_price = sjc_row.get('sell_price')
         
         if buy_price is None or sell_price is None:
-            print("Not Available SJC gold prices")
-            return False
+            print("Warning: Not available SJC gold prices")
+            print("Skipping update and keeping existing dataset unchanged")
+            return True
 
         print(f"Fetched prices: Buy={buy_price:,.0f} VND, Sell={sell_price:,.0f} VND")
 
