@@ -1,5 +1,5 @@
 requests
-vnstock>=0.2.9
+vnstock
 pandas>=2.0.0
 matplotlib
 bs4
