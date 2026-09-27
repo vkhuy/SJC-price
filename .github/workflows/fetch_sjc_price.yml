@@ -39,7 +39,8 @@ jobs:
       run: |
         cd data/gold_sjc
         python get_sjc_price.py
-
+      env:
+        VNSTOCK_API_KEY: ${{ secrets.VNSTOCK_API_KEY }}
     - name: Sync GitHub Pages data
       run: |
         mkdir -p docs/data

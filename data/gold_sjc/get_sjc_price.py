@@ -7,6 +7,7 @@ from io import StringIO
 from datetime import datetime, timedelta
 import time
 from vnstock.explorer.misc import sjc_gold_price
+from vnai import setup_api_key
 
 SJC_API = "https://sjc.com.vn/GoldPrice/Services/PriceService.ashx"
 NAME_KEYS = {"name", "title", "loai_vang", "loaivang", "gold_name", "ten", "tenloaivang"}
@@ -15,6 +16,13 @@ SELL_KEYS = {"sell", "sell_price", "giaban", "gia_ban", "ban"}
 BOT_USER_AGENT = "Mozilla/5.0 (compatible; SJC-price-bot/1.0)"
 BROWSER_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 MAX_SJC_PATTERN_GAP = 80
+
+_api_key = os.environ.get("VNSTOCK_API_KEY")
+if _api_key:
+    setup_api_key(_api_key)
+    print("Đã cấu hình VNSTOCK_API_KEY cho phiên chạy này")
+else:
+    print("Không tìm thấy VNSTOCK_API_KEY, dùng tier Community mặc định")
 
 def _to_numeric_price(value):
     if value is None:
