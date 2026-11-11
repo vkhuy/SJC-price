@@ -6,8 +6,6 @@ from bs4 import BeautifulSoup
 from io import StringIO
 from datetime import datetime, timedelta
 import time
-from vnstock.explorer.misc import sjc_gold_price
-from vnai import setup_api_key
 
 SJC_API = "https://sjc.com.vn/GoldPrice/Services/PriceService.ashx"
 NAME_KEYS = {"name", "title", "loai_vang", "loaivang", "gold_name", "ten", "tenloaivang"}
@@ -17,12 +15,6 @@ BOT_USER_AGENT = "Mozilla/5.0 (compatible; SJC-price-bot/1.0)"
 BROWSER_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 MAX_SJC_PATTERN_GAP = 80
 
-_api_key = os.environ.get("VNSTOCK_API_KEY")
-if _api_key:
-    setup_api_key(_api_key)
-    print("Đã cấu hình VNSTOCK_API_KEY cho phiên chạy này")
-else:
-    print("Không tìm thấy VNSTOCK_API_KEY, dùng tier Community mặc định")
 
 def _to_numeric_price(value):
     if value is None:
@@ -72,7 +64,7 @@ def _extract_prices_from_json(payload):
     return None, None
 
 def fetch_sjc_from_sjc_api(max_retries=3, delay=5):
-    """Fallback source: fetch directly from SJC API endpoint."""
+    """Primary source: fetch directly from SJC API endpoint."""
     headers = {
         "User-Agent": BROWSER_USER_AGENT,
         "Referer": "https://sjc.com.vn/",
@@ -137,28 +129,6 @@ def fetch_sjc_from_sjc_api(max_retries=3, delay=5):
             time.sleep(delay)
 
     return None, None, None
-
-def fetch_sjc_with_retry(max_retries=3, delay=5):
-    """Fetch SJC data via vnstock with retry logic."""
-    for attempt in range(max_retries):
-        try:
-            print(f"Attempt {attempt + 1}/{max_retries}...")
-            gold_data = sjc_gold_price()
-            
-            if gold_data is not None and len(gold_data) > 0:
-                print("Successfully fetched data")
-                return gold_data
-            else:
-                print(f"No data returned on attempt {attempt + 1}")
-                
-        except Exception as e:
-            print(f"Error on attempt {attempt + 1}: {str(e)}")
-            
-        if attempt < max_retries - 1:
-            print(f"Waiting {delay} seconds before retry...")
-            time.sleep(delay)
-    
-    return None
 
 def fetch_sjc_from_giavang_org(max_days_back=3):
     """Fallback source: fetch SJC from giavang.org historical pages."""
@@ -246,32 +216,22 @@ def fetch_sjc_from_giavangonline(max_days_back=3):
 
     return None, None, None
 
-def fetch_and_save_sjc_price():   
+def fetch_and_save_sjc_price():
     csv_file = 'sjc_final.csv'
-    
+
     try:
         buy_price = None
         sell_price = None
         record_date = datetime.now().strftime("%Y-%m-%d")
         source_used = None
 
-        # Fetch SJC gold price data with retry
         print("Fetching SJC price...")
-        print("Source (fallback order): vnstock -> SJC API -> giavang.org -> giavangonline.com")
-        gold_data = fetch_sjc_with_retry(max_retries=10, delay=10)
-        
-        if gold_data is not None and len(gold_data) > 0:
-            sjc_row = gold_data.iloc[0]
-            buy_price = sjc_row.get('buy_price')
-            sell_price = sjc_row.get('sell_price')
-            source_used = "vnstock"
+        print("Source (fallback order): SJC API -> giavang.org -> giavangonline.com")
 
-        if buy_price is None or sell_price is None:
-            print("vnstock source unavailable, trying SJC API fallback...")
-            buy_price, sell_price, fallback_date = fetch_sjc_from_sjc_api(max_retries=3, delay=5)
-            if buy_price is not None and sell_price is not None and fallback_date is not None:
-                record_date = fallback_date
-                source_used = "sjc_api"
+        buy_price, sell_price, fallback_date = fetch_sjc_from_sjc_api(max_retries=3, delay=5)
+        if buy_price is not None and sell_price is not None and fallback_date is not None:
+            record_date = fallback_date
+            source_used = "sjc_api"
 
         if buy_price is None or sell_price is None:
             print("SJC API source unavailable, trying fallback source giavang.org...")
@@ -309,7 +269,7 @@ def fetch_and_save_sjc_price():
         if os.path.exists(csv_file):
             df = pd.read_csv(csv_file)
             print(f"Reading current file with {len(df)} records")
-            
+
             # Check if record date already exists (avoid duplicates)
             if new_record['timestamp'] in df['timestamp'].values:
                 print(f"Record for {new_record['timestamp']} already exists. Updating...")
@@ -319,13 +279,13 @@ def fetch_and_save_sjc_price():
         else:
             df = pd.DataFrame([new_record])
             print("Creating new CSV file")
-        
+
         df.to_csv(csv_file, index=False)
         print(f"Saved SJC gold price: Buy {new_record['buy_1l']} - Sell {new_record['sell_1l']} million VND")
         print(f"Total records: {len(df)}")
 
         return True
-        
+
     except Exception as e:
         print(f"Error: {str(e)}")
         import traceback
